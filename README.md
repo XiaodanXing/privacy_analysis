@@ -13,6 +13,9 @@ We used a simple metric-based membership inference attack (MIA) in an unsupervis
 Our method is composed of four steps. Let's assume the syntheitc dataset have a size of 512*512:
 
 1. Feature embedding: Each image is embeded as a discrete feature map using [VQ-VAE2](https://arxiv.org/abs/1906.00446). VQ-VAE quantizes the latent features into a discrete latent space, i.e., each pixel in the latent feature maps is a K-way categorical variable, sampling from 0 to K-1.  We used a two-level latent hierarchy with feature maps of size 32*32 (top) and 64*64 (bottom). Only top features were used to compute privacy breach risk in this repository.
+```
+sh image_compressing.sh
+```
 
 2. Distance calculation: The distance between feature maps were computed by the Hamming distance between data points.
 
