@@ -1,6 +1,19 @@
-# privacy_analysis
-We used a simple metric-based membership inference attack (MIA) in an unsupervised manner. 
+# privacy analyzer
+This repository analyzes the privacy breach risk of synthetic images. To be specific, it performs a metric-based membership inference attack (MIA) without access to the generative model.
 
-We treated the MIA as a classification task: the target is to classify whether a specific real image is 0 (not presented in the training dataset) or 1 (presented in the training dataset).
+For a detailed explaination of privacy attack in generative models, please refer to section 6.3 in [this review](https://arxiv.org/abs/2209.09239). This review paper focuses on non-imaging data, but these methods are also applicable to image data.
 
-We presume that, the synthetic records must bear similarity with the records that were used to generate them [22]. For a real image, we calculated the similarities of all synthetic images between this image. If the mean similarity between this real image and all synthetic images is under a specific threshold, then this real image is considered as 1 (presented in the training dataset). We performed this analysis on all real images that were used to train the synthetic image (whose ground truth labels are all 1) and calculated the error of our metric-based MIA. A privacy preserved model should have high error. We define this error as MIA safe score. 
+## Method description
+The membership inference attack assumes that the attacker only have the access to data, while do not have the access to the generative models. The attacker can obtain a set of complete records, i.e., all attributes are publicized, and by observing the synthetic dataset S, the attacker will determining whether a given real data record was part of the synthetic model’ training dataset.
+
+We used a simple metric-based membership inference attack (MIA) in an unsupervised manner. We presume that, the synthetic records must bear similarity with the records that were used to generate them [22]. As is shown in the figure below. If a synthetic data point is close to this real data point than any other real data points, this synthetic dataset caused a privacy breach. In this figure, S1 and S2 caused a privacy breach, and the overall privacy breach risk of this synthetic dataset is 2/5.
+
+![图片](https://user-images.githubusercontent.com/30890745/225038684-39fcb201-7789-47c1-adc0-f64baf2bdc14.png)
+
+Our method is composed of four steps. Let's assume the syntheitc dataset have a size of 512*512:
+
+1. Feature embedding: Each image is embeded as a discrete feature map using [VQ-VAE2](https://arxiv.org/abs/1906.00446). VQ-VAE quantizes the latent features into a discrete latent space, i.e., each pixel in the latent feature maps is a K-way categorical variable, sampling from 0 to K-1.  We used a two-level latent hierarchy with feature maps of size 32*32 (top) and 64*64 (bottom). Only top features were used to compute privacy breach risk in this repository.
+
+2. Distance calculation: The distance between feature maps were computed by the Hamming distance between data points.
+
+3. Privacy breach calculation
